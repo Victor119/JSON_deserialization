@@ -37,7 +37,7 @@ void insertCharAtPosition(char* p, int i, char ch) {
 //put charcters '{ }' on left and right of the word {word} 
 //use the fact that every key can have only one object with a number/string
 char* modifyJSON(char *p) {
-    int ok = 0, ok2 = 0, ok3=0, flag3 = 0;
+    int ok = 0, ok2 = 0, ok3=0, ok4=0, ok5=0, flag3 = 0;
     for (int i = 0; i < strlen(p); i++) {
         if (p[i] == '"') {
             flag3++;
@@ -47,24 +47,38 @@ char* modifyJSON(char *p) {
             }
         }
 
-        if (ok == 1 && ok2 == 0 && ok3==0) {
+        if (ok == 1 && ok2 == 0 && ok3==0 && ok4==0 && ok5==0) {
             if (p[i] == '"' && flag3%2 == 0) {
                 insertCharAtPosition(p, i + 1, '}');
                 ok = 0;
             }
         }
 
-        if (ok2 == 1 && ok == 0 && ok3==0) {
+        if (ok2 == 1 && ok == 0 && ok3==0 && ok4==0 && ok5==0) {
             if (p[i] >= '0' && p[i] <= '9' && (p[i + 1] < '0' || p[i + 1] > '9')) {
                 insertCharAtPosition(p, i + 1, '}');
                 ok2 = 0;
             }
         }
 
-        if (ok3 == 1 && ok == 0 && ok2==0) {
-            if (p[i] == 'l' && p[i + 1] != 'l') {
+        if (ok3 == 1 && ok == 0 && ok2==0 && ok4==0 && ok5==0) {
+            if (p[i] == 'l' && (p[i + 1]=='{' || p[i+1]=='}' || p[i+1]=='[' || p[i+1]==']' || p[i+1]==',')) {
                 insertCharAtPosition(p, i + 1, '}');
                 ok3 = 0;
+            }
+        }
+
+        if (ok4 == 1 && ok == 0 && ok2==0 && ok3==0 && ok5==0) {
+            if (p[i] == 'e' && (p[i + 1]=='{' || p[i+1]=='}' || p[i+1]=='[' || p[i+1]==']' || p[i+1]==',')) {
+                insertCharAtPosition(p, i + 1, '}');
+                ok4 = 0;
+            }
+        }
+
+        if (ok5 == 1 && ok == 0 && ok2==0 && ok3==0 && ok4==0) {
+            if (p[i] == 'e' && (p[i + 1]=='{' || p[i+1]=='}' || p[i+1]=='[' || p[i+1]==']' || p[i+1]==',')) {
+                insertCharAtPosition(p, i + 1, '}');
+                ok5 = 0;
             }
         }
 
@@ -77,7 +91,7 @@ char* modifyJSON(char *p) {
                 if(p[i] == '"'){
                     flag3++;
                 }
-            } 
+            }
             if (p[i + 1] >= '0' && p[i + 1] <= '9') {
                 ok2++;
                 insertCharAtPosition(p, i + 1, '{'); 
@@ -85,6 +99,16 @@ char* modifyJSON(char *p) {
             }
             if(p[i+1] == 'n' && p[i+2] == 'u' && p[i+3] == 'l' && p[i+4] == 'l'){
                 ok3++;
+                insertCharAtPosition(p, i + 1, '{'); 
+                i++;
+            }
+            if((p[i+1] == 't' && p[i+2] == 'r' && p[i+3] == 'u' && p[i+4] == 'e') ){
+                ok4++;
+                insertCharAtPosition(p, i + 1, '{'); 
+                i++;
+            }
+            if(p[i+1] == 'f' && p[i+2] == 'a' && p[i+3] == 'l' && p[i+4] == 's' && p[i+5] == 'e'){
+                ok5++;
                 insertCharAtPosition(p, i + 1, '{'); 
                 i++;
             }
