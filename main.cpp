@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <cstring>
+#include <stack>
 
 using namespace std;
 
@@ -55,7 +56,7 @@ char* modifyJSON(char *p) {
         }
 
         if (ok2 == 1 && ok == 0 && ok3==0 && ok4==0 && ok5==0) {
-            if (p[i] >= '0' && p[i] <= '9' && (p[i + 1] < '0' || p[i + 1] > '9')) {
+            if (p[i] >= '0' && p[i] <= '9' && (p[i + 1]=='{' || p[i+1]=='}' || p[i+1]=='[' || p[i+1]==']' || p[i+1]==',')) {
                 insertCharAtPosition(p, i + 1, '}');
                 ok2 = 0;
             }
@@ -92,7 +93,12 @@ char* modifyJSON(char *p) {
                     flag3++;
                 }
             }
-            if (p[i + 1] >= '0' && p[i + 1] <= '9') {
+            if(p[i+1] == '-' && p[i + 2] >= '0' && p[i + 2] <= '9'){
+                ok2++;
+                insertCharAtPosition(p, i + 1, '{'); 
+                i++;
+            }
+            if ((p[i + 1] >= '0' && p[i + 1] <= '9')) {
                 ok2++;
                 insertCharAtPosition(p, i + 1, '{'); 
                 i++;
@@ -285,15 +291,117 @@ char* removeSubstring(char* s,char* t)
     return result2;
 }
 
+bool isValidJson(const std::string& json) {
+    std::stack<char> brackets;  // Stivă pentru acolade și paranteze
+    bool inString = false;      // Flag pentru a fi într-un string
+    bool expectValue = true;    // Așteptăm o valoare inițial
+    
+    size_t i = 0;
+    while (i < json.size()) {
+        char c = json[i];
 
-int v1[256], v2 [256], v3[256], v4[256], copyV1[256], copyV2[256];
-char s[256], copy1_s[256], copy2_s[256];
-char vector_chey[256][256], vector_chey2[256][256], vector_chey3[256][256];// Vector pentru a stoca cheile
-char vector_words[256][256], vector_words2[256][256], vector_words3[256][256];
+        // Ignorăm spațiile
+        if (c == ' ' || c == '\n' || c == '\t') {
+            i++;
+            continue;
+        }
+
+        // Dacă suntem într-un string
+        if (inString) {
+            if (c == '\\') {
+                i++; // Sărim peste caracterul următor dacă e escapare
+            } else if (c == '"') {
+                inString = false; // Ieșim din string
+            }
+            i++;
+            continue;
+        }
+
+        switch (c) {
+            case '{':
+                if (!expectValue) return false; // Structură nepermisă
+                brackets.push(c);
+                expectValue = true; // Așteptăm o cheie într-un obiect
+                break;
+
+            case '}':
+                if (brackets.empty() || brackets.top() != '{') return false;
+                brackets.pop();
+                expectValue = false; // Încheiem obiectul
+                break;
+
+            case '[':
+                if (!expectValue) return false;
+                brackets.push(c);
+                expectValue = true; // Așteptăm o valoare în array
+                break;
+
+            case ']':
+                if (brackets.empty() || brackets.top() != '[') return false;
+                brackets.pop();
+                expectValue = false;
+                break;
+
+            case '"':
+                inString = true;
+                expectValue = false; // String-ul satisface așteptarea de valoare
+                break;
+
+            case ':':
+                if (expectValue || brackets.empty() || brackets.top() != '{') return false;
+                expectValue = true; // După `:` urmează o valoare
+                break;
+
+            case ',':
+                if (expectValue || brackets.empty()) return false;
+                expectValue = true; // După `,` ne așteptăm la o nouă valoare
+                break;
+
+            case 't':
+                if (json.substr(i, 4) == "true" && expectValue) {
+                    i += 3; // Sărim peste "true"
+                    expectValue = false;
+                } else return false;
+                break;
+
+            case 'f':
+                if (json.substr(i, 5) == "false" && expectValue) {
+                    i += 4; // Sărim peste "false"
+                    expectValue = false;
+                } else return false;
+                break;
+
+            case 'n':
+                if (json.substr(i, 4) == "null" && expectValue) {
+                    i += 3; // Sărim peste "null"
+                    expectValue = false;
+                } else return false;
+                break;
+
+            default:
+                if (isdigit(c) || c == '-') { // Valoare numerică
+                    if (!expectValue) return false;
+                    while (i < json.size() && (isdigit(json[i]) || json[i] == '.' || json[i] == 'e' || json[i] == 'E' || json[i] == '+' || json[i] == '-')) i++;
+                    i--; // Ajustăm indexul pentru a procesa corect
+                    expectValue = false;
+                } else {
+                    return false; // Caracter invalid
+                }
+                break;
+        }
+        i++;
+    }
+
+    return brackets.empty() && !inString && !expectValue; // Structură JSON corect închisă
+}
+
+
+//daca exemplul este prea mare atunci nu va functiona
+
 
 int main()
 {
-    int n, i, j=0, j2=0, j3=0, j4=0, k=0, l=0, k2=0, l2=0, k3=0, l3=0;
+    int n=0, j=0, j2=0, j3=0, j4=0, k=0, l=0, k2=0, l2=0, k3=0, l3=0;
 
     // flag3%2==1 means we are inside a string
     int flag3 = 0;
@@ -301,7 +409,69 @@ int main()
     int flag4 = 0;
     int flag5 = 0;
 
-    cin.getline(s, 256);
+    //cin.getline(s, 256);
+
+    int i=0;
+    int size_of_s=0;
+    char ch;
+
+    ifstream inputFile("input.txt");
+    if (!inputFile.is_open()) {
+        cerr << "Eroare la deschiderea fișierului!" << std::endl;
+        return 1;
+    }
+    
+    while (inputFile.get(ch)) {
+        size_of_s++;
+    }
+
+    // Resetează poziția la începutul fișierului
+    inputFile.clear();
+    inputFile.seekg(0, ios::beg);
+
+    char* s = new char[size_of_s + 1];
+
+    while (inputFile.get(ch)) {
+        s[i] = ch;
+        i++;
+    }
+
+    s[i] = '\0';
+
+    inputFile.close();
+
+    n = size_of_s+1;
+
+    int v1[n] = {0}, v2[n] = {0}, v3[n] = {0}, v4[n] = {0};
+    int copyV1[n] = {0}, copyV2[n] = {0};
+
+    char copy1_s[n], copy2_s[n];
+
+    char vector_chey[n][n], vector_chey2[n][n], vector_chey3[n][n];
+    char vector_words[n][n], vector_words2[n][n], vector_words3[n][n];
+
+    for (j = 0; j < n; j++) {
+        for (k = 0; k < n; k++){
+            vector_chey[j][k] = '\0';
+            vector_chey2[j][k] = '\0';
+            vector_chey3[j][k] = '\0';
+            vector_words[j][k] = '\0';
+            vector_words2[j][k] = '\0';
+            vector_words3[j][k] = '\0';
+        }
+    }
+
+    j = 0;
+    k = 0;
+    
+    //std::string s = R"([{"_id":"671fb093de4cf33f051b4c23","index":0,"guid":"7efa4069-6b1d-4d41-9dbc-f50cd8161f34","isActive":true,"balance":"$2,099.99","picture":"http://placehold.it/32x32","age":31,"eyeColor":"blue","name":"Diane Sharp","gender":"female","company":"INEAR","email":"dianesharp@inear.com","phone":"+1 (809) 544-3049","address":"406 Morton Street, Leyner, Ohio, 544","about":"Excepteur irure fugiat ea Lorem sunt. Nisi magna minim velit non est duis nisi sint anim. Sint consequat fugiat adipisicing commodo. Ad duis incididunt velit commodo occaecat ad ipsum in magna minim dolore. Cupidatat do in quis in ipsum proident fugiat elit sunt consectetur. Proident occaecat qui mollit adipisicing adipisicing eu sunt esse ad deserunt adipisicing est dolor aliquip. Velit anim eiusmod aliqua elit veniam anim enim laborum minim ipsum laborum ullamco deserunt veniam.\r\n","registered":"2024-09-04T02:38:29 -03:00","latitude":57.111994,"longitude":102.906227,"tags":["sit","et","dolor","mollit","id","velit","nulla"],"friends":[{"id":0,"name":"Madge Farrell"},{"id":1,"name":"Yvonne Anderson"},{"id":2,"name":"Greene Rosario"}],"greeting":"Hello, Diane Sharp! You have 4 unread messages.","favoriteFruit":"apple"},{"_id":"671fb0937fefd364beae7528","index":1,"guid":"21378a53-e395-4f87-beda-825260ef7520","isActive":false,"balance":"$1,722.93","picture":"http://placehold.it/32x32","age":26,"eyeColor":"green","name":"Richards Manning","gender":"male","company":"SCHOOLIO","email":"richardsmanning@schoolio.com","phone":"+1 (999) 527-3911","address":"609 Division Place, Warsaw, Louisiana, 8117","about":"Cupidatat cupidatat aute qui duis mollit qui velit dolore. Excepteur veniam esse labore aute occaecat enim enim nulla culpa est dolor aute quis. Ut quis aute dolor voluptate labore irure qui culpa excepteur id laboris fugiat non. Consequat aliquip qui ullamco est tempor sint laboris dolor elit cillum irure. Ut non irure id exercitation ex labore reprehenderit pariatur consectetur non. Nisi incididunt quis irure aute commodo in ut labore nulla in anim aliqua id. Proident tempor labore exercitation id do nostrud in culpa exercitation nisi qui.\r\n","registered":"2020-02-05T08:23:32 -02:00","latitude":-86.100386,"longitude":-175.653081,"tags":["pariatur","consequat","qui","minim","deserunt","minim","do"],"friends":[{"id":0,"name":"Gutierrez Nichols"},{"id":1,"name":"Boyle Ryan"},{"id":2,"name":"Brigitte Pratt"}],"greeting":"Hello, Richards Manning! You have 9 unread messages.","favoriteFruit":"banana"},{"_id":"671fb093822920f2caa4caf3","index":2,"guid":"6e06c4bc-326d-4e25-8dfe-ccd8a84be10c","isActive":true,"balance":"$2,914.15","picture":"http://placehold.it/32x32","age":38,"eyeColor":"green","name":"Johanna Cain","gender":"female","company":"IMAGEFLOW","email":"johannacain@imageflow.com","phone":"+1 (983) 592-3256","address":"216 Montana Place, Townsend, Hawaii, 8155","about":"Mollit dolor aliqua consequat labore deserunt dolor sint duis culpa. Quis veniam velit consequat et. Dolore aute exercitation nostrud laborum pariatur irure id elit. Excepteur Lorem ex culpa ullamco veniam reprehenderit tempor est consequat velit velit commodo cillum.\r\n","registered":"2024-10-21T03:24:44 -03:00","latitude":-48.75001,"longitude":165.155763,"tags":["officia","deserunt","labore","ex","exercitation","quis","pariatur"],"friends":[{"id":0,"name":"Todd Carpenter"},{"id":1,"name":"Lilia Haley"},{"id":2,"name":"Anne Quinn"}],"greeting":"Hello, Johanna Cain! You have 4 unread messages.","favoriteFruit":"strawberry"},{"_id":"671fb093c6e9c94b53c0a55d","index":3,"guid":"724d6205-04ce-4f9c-9b24-5351306e8d12","isActive":false,"balance":"$3,202.08","picture":"http://placehold.it/32x32","age":28,"eyeColor":"brown","name":"Kristy England","gender":"female","company":"ZOMBOID","email":"kristyengland@zomboid.com","phone":"+1 (888) 448-3117","address":"739 Beekman Place, Woodlands, Maine, 6304","about":"Laboris deserunt adipisicing veniam nostrud duis sint exercitation. Sit duis nostrud commodo culpa anim enim et. Irure voluptate occaecat nostrud nulla consequat consequat. Aliquip duis id cillum aliquip et fugiat minim adipisicing sunt. Eiusmod Lorem sit est ipsum in nostrud Lorem non consequat voluptate dolor irure consectetur. Id labore dolore anim esse culpa incididunt deserunt.\r\n","registered":"2015-07-12T07:36:56 -03:00","latitude":-53.241525,"longitude":131.457158,"tags":["sint","proident","magna","consequat","qui","veniam","amet"],"friends":[{"id":0,"name":"Chang Perez"},{"id":1,"name":"Leblanc Reyes"},{"id":2,"name":"Warren Knapp"}],"greeting":"Hello, Kristy England! You have 9 unread messages.","favoriteFruit":"strawberry"},{"_id":"671fb09320d096eead8e80e4","index":4,"guid":"db1f9e7c-5052-4cc3-b414-61d70855afc2","isActive":false,"balance":"$3,924.30","picture":"http://placehold.it/32x32","age":26,"eyeColor":"brown","name":"Levy Horton","gender":"male","company":"INSECTUS","email":"levyhorton@insectus.com","phone":"+1 (884) 442-2564","address":"188 Lott Place, Bawcomville, Idaho, 5792","about":"Deserunt elit amet irure dolore et eiusmod veniam do minim sunt exercitation officia. Id pariatur dolore ullamco proident excepteur adipisicing ea deserunt minim. Laborum enim est ipsum velit in nostrud sint proident ipsum do. Sint enim et cillum consectetur enim mollit occaecat esse consectetur.\r\n","registered":"2017-02-11T02:04:39 -02:00","latitude":-51.088951,"longitude":-164.34146,"tags":["est","cupidatat","veniam","aliquip","laboris","ea","irure"],"friends":[{"id":0,"name":"Nguyen Patterson"},{"id":1,"name":"Lourdes Malone"},{"id":2,"name":"Sara Lyons"}],"greeting":"Hello, Levy Horton! You have 1 unread messages.","favoriteFruit":"banana"}])";
+
+
+    if (isValidJson(s)) {
+        cout << "JSON-ul este valid." << endl;
+    } else {
+        cout << "JSON-ul nu este valid." << endl;
+    }
 
     //eliminate spaces
     char *new_s = eliminareSpatii(s);
@@ -493,7 +663,7 @@ int main()
         //cout << v5[n] << " " << v6[n] << endl;
     }
 
-    n=k3;
+    n = k3;
 
     // falag reprezinta ca suntem pe caracterul '{' cel mai din stanga
     flag = 0;
@@ -616,10 +786,10 @@ int main()
 
     int size_of_vector_chey = k;
 
-    /*
-    for(int m=0; m < size_of_vector_chey; m++)
-        cout << vector_chey[m] << endl;
-    */
+    
+    //for(int m=0; m < size_of_vector_chey; m++)
+    //    cout << vector_chey[m] << endl;
+    
 
     // flag reprezinta ca suntem pe caracterul '{' cel mai din stanga
     flag = 0;
@@ -1021,6 +1191,7 @@ int main()
     {
         cout << vector_chey3[m] << " "  << vector_words3[m] << endl;  
     }
+
 
     return 0;
 }
