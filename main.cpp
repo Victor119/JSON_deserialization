@@ -2,6 +2,7 @@
 #include <fstream>
 #include <cstring>
 #include <stack>
+#include <sstream>
 
 using namespace std;
 
@@ -448,6 +449,30 @@ bool become_empty(char *p){
         return true;
     else
         return false;
+}
+
+void replaceSubstring(char *str, const char *oldSubstr, const char *newSubstr, size_t strLength) {
+    char *buffer = new char[strLength + 1];
+    char *p;
+
+    // Verifică dacă oldSubstr se află în str
+    p = strstr(str, oldSubstr);
+    while (p) {
+        // Copiază tot ce este înainte de oldSubstr
+        strncpy(buffer, str, p - str);
+        buffer[p - str] = '\0';
+        
+        // Adaugă noul substring
+        sprintf(buffer + (p - str), "%s%s", newSubstr, p + strlen(oldSubstr));
+        
+        // Copiază rezultatul înapoi în str
+        strcpy(str, buffer);
+        
+        // Caută următoarea apariție
+        p = strstr(str, oldSubstr);
+    }
+
+    delete[] buffer;
 }
 
 char* copy1_s = nullptr;
@@ -1320,6 +1345,61 @@ int main()
     {
         cout << vector_chey3[m] << " " << vector_words4[m] << endl;
     }
+
+/*
+Transform from this:
+"x": {789}
+"a": {"b":[1,2,{"c":{false}},[11,12]]}
+"b": [1,2,{"c":{false}},[11,12]]
+"c": {false}
+"y": {999}
+
+To this:
+"x": 789
+"a": {"b":[1,2,{"c":false},[11,12]]}
+"b": [1,2,{"c":false},[11,12]]
+"c": false
+"y": 999
+*/
+
+    // Modificare vector_words4 pentru a avea valorile corespunzătoare
+    // Parcurgere vector_words4 de jos in sus
+    for (int m = size_of_vector_chey - 1; m >= 0; m--) {
+        string value = vector_words4[m];
+        // Verifică dacă valoarea are o singură pereche de acolade
+        if (value[0] == '{' && value[value.size() - 1] == '}') {
+            // Verifică max depth
+            int maxDepth = calculateMaxDepth(vector_words4[m]);
+            if (maxDepth == 1) {
+                // Elimină acoladele
+                value = value.substr(1, value.size() - 2);
+            }
+
+            for (k = m - 1; k >= 0; k--) {
+                replaceSubstring(vector_words4[k], vector_words4[m], value.c_str(), strlen(vector_words4[k]));
+            }
+
+            strcpy(vector_words4[m], value.c_str());
+        }
+    }
+
+    cout << endl;
+    // Afișare rezultat
+    for (int m = 0; m < size_of_vector_chey; m++) {
+        cout << vector_chey3[m] << " "<< vector_words4[m] << endl;
+    }
+
+
+    //in max(max(a.b[0]))
+    //mai intai facem toate inlocuirile dupa cand ajungem mereu la max depth facem calculul efectiv
+
+    //char s2[256];
+    //cout << "Input expression= " << endl;
+    //cin.getline(s2,256);
+
+    //cout << s2 << endl;
+
+    //trebuie sa facem similar ca mai sus utilizand adancimea
 
     return 0;
 }
