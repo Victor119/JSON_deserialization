@@ -859,6 +859,8 @@ char *aux = nullptr;
 char *aux2 = nullptr;
 char *aux3 = nullptr;
 
+char *inputString2=nullptr;
+
 char *sir_creat1 = nullptr;
 char *sir_creat2 = nullptr;
 
@@ -866,7 +868,6 @@ char *sir_creat2 = nullptr;
 
 int main(int argc, char *argv[])
 {
-
     int i=0, size_of_s = 0;
     char ch;
 
@@ -877,7 +878,11 @@ int main(int argc, char *argv[])
     if (argc > 2)
     {
         string filePath = argv[1];
+
         string inputString = argv[2];
+
+        inputString2 = new char[inputString.length() + 1];
+        strcpy(inputString2, inputString.c_str());
 
         ifstream inputFile(filePath);
         if (!inputFile.is_open())
@@ -2452,6 +2457,8 @@ int main(int argc, char *argv[])
         cout << vector_chey7[i] << " " << vector_words5[i] << endl;
     }
 
+    cout << "input string= " << inputString2 << endl;
+    
     // char s2[256];
     // cout << "Input expression= " << endl;
     // cin.getline(s2,256);
