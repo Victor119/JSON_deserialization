@@ -859,7 +859,7 @@ char *aux = nullptr;
 char *aux2 = nullptr;
 char *aux3 = nullptr;
 
-char *inputString2=nullptr;
+char *inputString2 = nullptr;
 
 char *sir_creat1 = nullptr;
 char *sir_creat2 = nullptr;
@@ -868,7 +868,7 @@ char *sir_creat2 = nullptr;
 
 int main(int argc, char *argv[])
 {
-    int i=0, size_of_s = 0;
+    int i = 0, size_of_s = 0;
     char ch;
 
     int n = 9999;
@@ -955,7 +955,6 @@ int main(int argc, char *argv[])
     // char *s2 = new char[n];
     // n = strlen(s) + 1;
 
-    
     n2 = n;
     char *copy3_s = new char[n];
 
@@ -2458,13 +2457,62 @@ int main(int argc, char *argv[])
     }
 
     cout << "input string= " << inputString2 << endl;
-    
-    // char s2[256];
-    // cout << "Input expression= " << endl;
-    // cin.getline(s2,256);
 
-    // cout << s2 << endl;
+    maxDepth = calculateMaxDepth2(inputString2);
 
+    char *copyInputString2 = new char[strlen(inputString2) + 1];
+
+    i = 0, i2 = 0, j = 0, j2 = 0, j3 = 0, j4 = 0, l = 0, k = 0, counter = 0;
+    flag = 0, flag2 = 0, flag3 = 0, flag4 = 0, flag5 = 0;
+
+    int ok = 0;
+
+    // while (maxDepth > 1)
+    //{
+
+/*
+    flag = 0, k = 0, j = 0, ok = 0;
+    strcpy(aux, "");
+    for (i = 0; i < strlen(copyInputString2) && ok == 0; i++)
+    {
+        if (copyInputString2[i] == '[')
+        {
+            k++;
+        }
+        if (flag == 1)
+        {
+            if (copyInputString2[i] == ']')
+            {
+                counter++;
+            }
+            if (counter < 2)
+            {
+                aux = addCharToEnd(aux, copyInputString2[i]);
+                j++;
+            }
+            if (counter == 2)
+            {
+                ok++;
+            }
+        }
+        if (k == maxDepth && flag == 0)
+        {
+            i--;
+            while (copyInputString2[i] != '[')
+            {
+                i--;
+            }
+            flag++;
+        }
+    }
+
+    cout << "am intrat = " << aux << endl;
+    for (i = 0; i < size_of_vector_chey5; i++)
+    {
+        i++;
+    }
+    //}
+*/
     // in max(max(a.b[0]))
     // mai intai facem toate inlocuirile dupa cand ajungem mereu la max depth facem calculul efectiv
 
