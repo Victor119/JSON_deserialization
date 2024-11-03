@@ -823,23 +823,23 @@ char *eliminaDupaGhilimele(char *sir)
     return aux;
 }
 
-char* stergePrimaUltimaPozitie(const char *sir) {
+char *stergePrimaUltimaPozitie(const char *sir)
+{
     int length = strlen(sir);
 
     // Dacă șirul are mai puțin de 2 caractere, returnăm un șir gol
-    if (length <= 2) {
+    if (length <= 2)
+    {
         char *emptyString = new char[1];
         emptyString[0] = '\0';
         return emptyString;
     }
 
-    
     char *result = new char[length - 1];
-    strncpy(result, sir + 1, length - 2); 
+    strncpy(result, sir + 1, length - 2);
     result[length - 2] = '\0';
     return result;
 }
-
 
 /*
 int v1[1024], v2[1024], v3[1024], v4[1024];
@@ -862,21 +862,65 @@ char *aux3 = nullptr;
 char *sir_creat1 = nullptr;
 char *sir_creat2 = nullptr;
 
+// path C:/Users/victor/Documents/jetbarain_task_1/input.txt
 
-//path C:/Users/victor/Documents/jetbarain_task_1/input.txt
-
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
-    if (argc > 2) {
+
+    int i=0, size_of_s = 0;
+    char ch;
+
+    int n = 9999;
+    char *s = new char[n];
+    char *s2 = new char[n];
+
+    if (argc > 2)
+    {
         string filePath = argv[1];
         string inputString = argv[2];
-        
-    } else {
+
+        ifstream inputFile(filePath);
+        if (!inputFile.is_open())
+        {
+            cerr << "Eroare la deschiderea fisierului!" << std::endl;
+            return 1;
+        }
+
+        while (inputFile.get(ch))
+        {
+            if (ch != '\n')
+            {
+                size_of_s++;
+            }
+        }
+
+        // Resetează poziția la începutul fișierului
+        inputFile.clear();
+        inputFile.seekg(0, ios::beg);
+
+        char *s2 = new char[size_of_s + 1];
+
+        while (inputFile.get(ch))
+        {
+            if (ch != '\n')
+            {
+                s2[i] = ch;
+                i++;
+            }
+        }
+
+        s2[i] = '\0';
+        inputFile.close();
+
+        strcpy(s, s2);
+    }
+    else
+    {
         cerr << "Utilizare: ./main /cale/catre/fisier \"input.string\"" << endl;
         return 1;
     }
 
-    int n = 0, n2 = 0, i = 0, j = 0, j2 = 0, j3 = 0, j4 = 0, k = 0, l = 0, k2 = 0, l2 = 0, k3 = 0, l3 = 0;
+    int n2 = 0, j = 0, j2 = 0, j3 = 0, j4 = 0, k = 0, l = 0, k2 = 0, l2 = 0, k3 = 0, l3 = 0;
 
     // flag3%2==1 means we are inside a string
     int flag3 = 0;
@@ -885,44 +929,6 @@ int main(int argc, char* argv[])
     int flag5 = 0;
 
     // cin.getline(s, 256);
-
-    int size_of_s = 0;
-    char ch;
-
-    //cout << filePath << endl;
-
-    ifstream inputFile("input.txt");
-    if (!inputFile.is_open())
-    {
-        cerr << "Eroare la deschiderea fisierului!" << std::endl;
-        return 1;
-    }
-
-    while (inputFile.get(ch))
-    {
-        if (ch != '\n')
-        {
-            size_of_s++;
-        }
-    }
-
-    // Resetează poziția la începutul fișierului
-    inputFile.clear();
-    inputFile.seekg(0, ios::beg);
-
-    char *s = new char[size_of_s + 1];
-
-    while (inputFile.get(ch))
-    {
-        if (ch != '\n')
-        {
-            s[i] = ch;
-            i++;
-        }
-    }
-
-    s[i] = '\0';
-    inputFile.close();
 
     if (isValidJson(s))
     {
@@ -944,7 +950,7 @@ int main(int argc, char* argv[])
     // char *s2 = new char[n];
     // n = strlen(s) + 1;
 
-    n = 9999;
+    
     n2 = n;
     char *copy3_s = new char[n];
 
@@ -1003,9 +1009,6 @@ int main(int argc, char* argv[])
         vector_words5[j] = new char[n]();
     }
     strcpy(s, copy3_s);
-
-
-    
 
     j = 0;
     k = 0;
