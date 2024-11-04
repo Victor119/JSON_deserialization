@@ -2,9 +2,9 @@
 #include <fstream>
 #include <cstring>
 #include <stack>
-#include <sstream>
-#include <cstdio>
-#include <cstdlib>
+// #include <sstream>
+// #include <cstdio>
+// #include <cstdlib>
 
 using namespace std;
 
@@ -246,6 +246,42 @@ int calculateMaxDepth2(char *p)
                 height_max = height;
         }
         if (p[i] == ']' && flag3 % 2 == 0)
+            if (height > 0)
+                height--;
+            else
+                ok = 0;
+    }
+    if (height > 0)
+        ok = 0;
+    if (!ok)
+        return -1; // -1 is for inccorect
+    else
+        return height_max;
+}
+
+int calculateMaxDepth3(char *p)
+{
+    int ok = 1;
+    int height = 0;
+    int height_max = 0;
+    int flag3 = 0;
+    for (int i = 0; p[i] && ok; i++)
+    {
+        if (p[i] == '"')
+        {
+            flag3++;
+            if (p[i - 1] == '\\')
+            {
+                flag3--;
+            }
+        }
+        if (p[i] == '(' && flag3 % 2 == 0)
+        {
+            height++;
+            if (height > height_max)
+                height_max = height;
+        }
+        if (p[i] == ')' && flag3 % 2 == 0)
             if (height > 0)
                 height--;
             else
@@ -588,10 +624,10 @@ int number_of_commas(char *str)
     int i = 0;
 
     int length = strlen(str);
-    if (length <= 2)
-    {
-        cout << "0";
-    }
+    //if (length <= 2)
+    //{
+    //    cout << "0";
+    //}
 
     char *trimmed_str = new char[length - 1];
     strncpy(trimmed_str, str + 1, length - 2);
@@ -887,6 +923,162 @@ char *processInputString(char *inputString)
     return aux;
 }
 
+char *processString(char *copyInputString2, char **vector_chey7, char **vector_words5, int size_of_vector_chey5)
+{
+    int maxDepth = calculateMaxDepth2(copyInputString2);
+    int ok = 0;
+    int i;
+
+    while (maxDepth > 1)
+    {
+        char *modifiedString3 = processInputString(copyInputString2);
+
+        for (i = 0; i < size_of_vector_chey5; i++)
+        {
+            if (strcmp(vector_chey7[i], modifiedString3) == 0)
+            {
+                // cout << vector_chey7[i] << " " << vector_words5[i] << endl;
+                replaceSubstring(copyInputString2, modifiedString3, vector_words5[i]);
+            }
+        }
+        delete[] modifiedString3;
+        maxDepth--;
+    }
+
+    for (i = 0; i < size_of_vector_chey5 && ok == 0; i++)
+    {
+        if (strcmp(vector_chey7[i], copyInputString2) == 0)
+        {
+            replaceSubstring(copyInputString2, vector_chey7[i], vector_words5[i]);
+            ok++;
+        }
+    }
+
+    return copyInputString2;
+}
+
+char *extractMaxDepthContent(char *copyInputString2)
+{
+    int maxDepth = calculateMaxDepth3(copyInputString2);
+    //cout << "Max Depth: " << maxDepth << endl;
+
+    int counter = 0;
+    int flag = 0;
+    int j = 0;
+    char *aux = new char[strlen(copyInputString2) + 1];
+    aux[0] = '\0';
+
+    for (int i = 0; i < strlen(copyInputString2) && flag == 0; i++)
+    {
+        if (copyInputString2[i] == '(')
+        {
+            counter++;
+        }
+        if (copyInputString2[i] == ')')
+        {
+            counter--;
+        }
+        if (counter == maxDepth)
+        {
+            while (counter == maxDepth)
+            {
+                aux[j] = copyInputString2[i];
+                j++;
+                if (copyInputString2[i] == ')')
+                {
+                    counter--;
+                }
+                i++;
+            }
+            aux[j] = '\0';
+            flag = 1;
+        }
+    }
+    return aux;
+}
+
+bool isNumber(const char *str)
+{
+    if (str == nullptr || strlen(str) == 0)
+    {
+        return false;
+    }
+
+    int pointCount = 0; // pentru a număra câte puncte există
+    int startIndex = 0;
+
+    // Verificăm semnul minus doar dacă este primul caracter
+    if (str[0] == '-')
+    {
+        startIndex = 1;
+        if (strlen(str) == 1)
+        { // "-" singur nu este un număr valid
+            return false;
+        }
+    }
+
+    for (int i = startIndex; str[i] != '\0'; i++)
+    {
+        if (str[i] == '.')
+        {
+            pointCount++;
+            if (pointCount > 1)
+            {
+                return false; // nu poate avea mai mult de un punct
+            }
+        }
+        else if (!isdigit(str[i]))
+        {
+            return false; // caractere nevalide
+        }
+    }
+
+    // Dacă avem un singur punct sau niciunul, este un număr valid de tip `double`
+    return true;
+}
+
+int countDigits(int number)
+{
+    // Dacă numărul este 0, returnează 1
+    if (number == 0)
+        return 1;
+
+    if (number < 0)
+        number = -number;
+
+    int count = 0;
+    while (number > 0)
+    {
+        number /= 10;
+        count++;
+    }
+
+    return count;
+}
+
+int countCharacterOccurrences(const char *str, char character)
+{
+    int count = 0;
+    for (int i = 0; str[i] != '\0'; i++)
+    {
+        if (str[i] == character)
+        {
+            count++;
+        }
+    }
+    return count;
+}
+
+int manual_strcmp(const char *s1, const char *s2)
+{
+    while (*s1 && (*s1 == *s2))
+    {
+        s1++;
+        s2++;
+    }
+    return *(unsigned char *)s1 - *(unsigned char *)s2;
+}
+
 /*
 int v1[1024], v2[1024], v3[1024], v4[1024];
 int copyV1[1024], copyV2[1024];
@@ -912,6 +1104,9 @@ char *sir_creat2 = nullptr;
 
 // path C:/Users/victor/Documents/jetbarain_task_1/input.txt
 
+// path C:/Users/victor/Downloads/Victor-1>/input.txt
+
+// docker run -it --rm -v C:/Users/victor/Downloads/Victor-1/input.txt:/app/input.json json_eval input.json "x"
 int main(int argc, char *argv[])
 {
     int i = 0, size_of_s = 0;
@@ -1024,6 +1219,8 @@ int main(int argc, char *argv[])
     char *aux2 = new char[n];
 
     char *aux3 = new char[n];
+
+    char *aux4 = new char[n];
 
     char **vector_chey = new char *[n];
     char **vector_chey2 = new char *[n];
@@ -1869,12 +2066,15 @@ int main(int argc, char *argv[])
 
     i = 0, j = 0, j2 = 0, j3 = 0, j4 = 0, l = 0, k = 0;
     flag = 0, flag2 = 0, flag3 = 0, flag4 = 0, flag5 = 0;
+
+/*
     cout << endl;
     // Afișare rezultat
     for (int m = 0; m < size_of_vector_chey; m++)
     {
         cout << vector_chey3[m] << " " << vector_words4[m] << endl;
     }
+*/
 
     /*
     Transform from this:
@@ -1896,7 +2096,7 @@ int main(int argc, char *argv[])
     y -999
     */
 
-    cout << endl;
+    //cout << endl;
     for (i = 0; i < size_of_vector_chey; i++)
     {
         j2 = 0;
@@ -2062,11 +2262,12 @@ int main(int argc, char *argv[])
     }
 
     int size_of_vector_chey4 = j4;
-
+/*
     for (i = 0; i < size_of_vector_chey4; i++)
     {
         cout << vector_chey4[i] << " " << vector_words5[i] << endl;
     }
+*/
 
     /*
     Transform from this:
@@ -2210,7 +2411,7 @@ int main(int argc, char *argv[])
     // cout << "am intrat= " << j4 << endl;
     int size_of_vector_chey5 = j4;
 
-    cout << endl;
+    //cout << endl;
     // vector_chey7 = "chey5":
     for (i = 0; i < size_of_vector_chey5; i++)
     {
@@ -2225,10 +2426,12 @@ int main(int argc, char *argv[])
         strcpy(vector_chey8[i], modifiedString);
     }
 
+/*
     for (i = 0; i < size_of_vector_chey5; i++)
     {
         cout << vector_chey5[i] << " " << vector_words5[i] << endl;
     }
+*/
 
     /*
     Transform from this:
@@ -2438,7 +2641,7 @@ int main(int argc, char *argv[])
     i = 0, i2 = 0, j = 0, j2 = 0, j3 = 0, j4 = 0, l = 0, k = 0;
     flag = 0, flag2 = 0, flag3 = 0, flag4 = 0, flag5 = 0;
 
-    cout << endl;
+    //cout << endl;
     for (i = 0; i < size_of_vector_chey5; i++)
     {
         strcpy(sir_creat1, vector_chey7[i]);
@@ -2512,7 +2715,11 @@ int main(int argc, char *argv[])
         strcpy(vector_chey7[i], modifiedString2);
     }
 
-    cout << "input string= " << inputString2 << endl;
+    //cout << "input string= " << inputString2 << endl;
+
+    new_s = eliminareSpatii(inputString2);
+
+    strcpy(inputString2, new_s);
 
     maxDepth = calculateMaxDepth2(inputString2);
 
@@ -2525,46 +2732,542 @@ int main(int argc, char *argv[])
 
     strcpy(copyInputString2, inputString2);
 
-    cout << endl;
-    while(maxDepth>1){
-        char *modifiedString3 = processInputString(copyInputString2);
+    if (strstr(copyInputString2, "min") != NULL)
+    {
+        ok++;
+    }
+    if (strstr(copyInputString2, "max") != NULL)
+    {
+        ok++;
+    }
+    if (strstr(copyInputString2, "size") != NULL)
+    {
+        ok++;
+    }
+    if (strchr(copyInputString2, '(') != NULL)
+    {
+        ok++;
+    }
+    if (strchr(copyInputString2, ')') != NULL)
+    {
+        ok++;
+    }
 
-        for (i = 0; i < size_of_vector_chey5; i++)
+    if (ok == 0)
+    {
+        int ok2 = 0;
+        //cout << endl;
+        while (maxDepth > 1)
         {
-            if(strcmp(vector_chey7[i], modifiedString3) == 0){
-                cout << vector_chey7[i] << " " << vector_words5[i] << endl;
-                replaceSubstring(copyInputString2, modifiedString3, vector_words5[i]);
+            char *modifiedString3 = processInputString(copyInputString2);
+
+            for (i = 0; i < size_of_vector_chey5; i++)
+            {
+                if (strcmp(vector_chey7[i], modifiedString3) == 0)
+                {
+                    //cout << vector_chey7[i] << " " << vector_words5[i] << endl;
+                    replaceSubstring(copyInputString2, modifiedString3, vector_words5[i]);
+                }
+            }
+            maxDepth--;
+        }
+
+        for (i = 0; i < size_of_vector_chey5 && ok2 == 0; i++)
+        {
+            if (strcmp(vector_chey7[i], copyInputString2) == 0)
+            {
+                replaceSubstring(copyInputString2, vector_chey7[i], vector_words5[i]);
+                ok2++;
             }
         }
-        maxDepth--;
-    }
 
-    for (i = 0; i < size_of_vector_chey5 && ok==0; i++){
-        if(strcmp(vector_chey7[i], copyInputString2)==0){
-            replaceSubstring(copyInputString2, vector_chey7[i], vector_words5[i]);
-            ok++;
+        if (ok2 == 1)
+        {
+            cout << "second argument is valid: " << endl;
+            cout << copyInputString2 << endl;
+        }
+        if (ok2 == 0)
+        {
+            cout << "second argument is invalid: " << endl;
         }
     }
+    if (ok > 0)
+    {
+        int ok4 = 0;
 
-    if(ok==1){
-        cout << "second argument is valid: " << endl;
-        cout << copyInputString2 << endl;
+        int occurrences = countCharacterOccurrences(copyInputString2, '(');
+
+        while (occurrences > 0)
+        {
+            i = 0, j = 0;
+
+            maxDepth = calculateMaxDepth3(copyInputString2);
+            // cout << maxDepth << endl;
+            counter = 0;
+            flag = 0;
+            flag2 = 0;
+            int indexStart = 0;
+            int indexEnd = 0;
+            strcpy(aux, "");
+
+            for (i = 0; i < strlen(copyInputString2) && flag == 0; i++)
+            {
+                // cout << i << endl;
+                if (copyInputString2[i] == '(')
+                {
+                    counter++;
+                }
+                if (copyInputString2[i] == ')')
+                {
+                    counter--;
+                }
+                if (counter == maxDepth)
+                {
+                    if (flag2 == 0)
+                    {
+                        indexStart = i;
+                        flag2++;
+                    }
+                    while (counter == maxDepth && flag == 0)
+                    {
+                        aux[j] = copyInputString2[i];
+                        j++;
+                        if (copyInputString2[i] == ')')
+                        {
+                            counter--;
+                            flag++;
+                            indexEnd = i;
+                            i = i - 2; // we decrement again cauze at the end i will be incremented
+                        }
+                        i++;
+                    }
+                }
+            }
+
+            if (copyInputString2[indexStart - 1] == 'x' && copyInputString2[indexStart - 2] == 'a' && copyInputString2[indexStart - 3] == 'm')
+            {
+                i = i - 3;
+                strcpy(aux2, "");
+                j3 = 0;
+                // cout << indexStart << " " << indexEnd << endl;
+                for (j2 = indexStart - 3; j2 <= indexEnd; j2++)
+                {
+                    aux2[j3] = copyInputString2[j2];
+                    j3++;
+                }
+                aux2[j3] = '\0';
+
+                char *aux6 = new char[strlen(aux2) + 1];
+                strcpy(aux6, aux2);
+
+                strcpy(aux3, "");
+                j4 = 0;
+                for (j2 = indexStart; j2 <= indexEnd; j2++)
+                {
+                    aux3[j4] = copyInputString2[j2];
+                    j4++;
+                }
+                aux3[j4] = '\0';
+
+                // if(occurrences==1){
+                //     cout << aux3 << " " << strlen(aux3) << endl;
+                // }
+
+                char *modifiedString = stergePrimaUltimaPozitie(aux3);
+
+                //if (occurrences == 1)
+                //{
+                //    cout << modifiedString << endl;
+                //}
+
+                // strcat(modifiedString, ",");
+
+                // cout << modifiedString << endl;
+
+                strcpy(aux4, "");
+
+                char *p = strtok(modifiedString, ",");
+                while (p != NULL)
+                {
+                    if (isNumber(p) == false)
+                    {
+
+                        // p = processString(p, vector_chey7, vector_words5, size_of_vector_chey5);
+
+                        //cout << "aici: " << endl;
+
+                        int maxDepth2 = calculateMaxDepth2(p);
+
+                        int ok3 = 0;
+
+                        while (maxDepth2 > 1)
+                        {
+                            char *modifiedString3 = processInputString(p);
+
+                            for (i = 0; i < size_of_vector_chey5; i++)
+                            {
+                                if (strcmp(vector_chey7[i], modifiedString3) == 0)
+                                {
+                                    // cout << vector_chey7[i] << " " << vector_words5[i] << endl;
+                                    replaceSubstring(p, modifiedString3, vector_words5[i]);
+                                }
+                            }
+                            //delete[] modifiedString3;
+                            maxDepth2--;
+                        }
+
+                        char *aux7 = new char[strlen(p) + 1];
+                        j4 = 0;
+                        for (j2 = 0; j2 < strlen(p); j2++)
+                        {
+                            aux7[j4] = p[j2];
+                            j4++;
+                        }
+
+                        //cout << aux7 << endl;
+
+                        for (i = 0; i < size_of_vector_chey5 && ok3 == 0; i++)
+                        {
+                            //cout << "am " << vector_chey7[i] << " " << aux7 << endl;
+                            if (strcmp(vector_chey7[i], aux7) == 0)
+                            {
+
+                                // cout << p << " " <<vector_chey7[i] << " " << vector_words5[i];
+                                replaceSubstring(aux7, vector_chey7[i], vector_words5[i]);
+                                ok3++;
+                                strcat(aux4, aux7);
+                            }
+                        }
+
+                        // cout << "am5 " << aux4 << endl;
+                        strcat(aux4, ",");
+                    }
+                    else
+                    {
+                        strcat(aux4, p);
+                        strcat(aux4, ",");
+                    }
+                    p = strtok(NULL, ",");
+                }
+
+                if (aux4[0] != '\0')
+                {
+                    aux4[strlen(aux4) - 1] = '\0';
+                }
+
+                // cout << "am intrat= " << aux4 << endl;
+
+                char *modifiedString2 = addCharToFront(aux4, '(');
+
+                strcpy(aux4, modifiedString2);
+
+                char *modifiedString3 = addCharToEnd(aux4, ')');
+
+                strcpy(aux4, modifiedString3);
+
+                replaceSubstring(aux2, aux3, aux4);
+
+                //for (j2 = 0; j2 <= strlen(aux2); j2++)
+                //{
+                //    cout << aux2[j2] << " ";
+                //}
+                //cout << endl;
+
+                strcpy(aux4, aux2);
+
+                char *modifiedString4 = stergePrimaUltimaPozitie(aux4);
+
+                strcpy(aux4, modifiedString4);
+
+                strcpy(aux3, "");
+                j4 = 0;
+                for (j2 = 3; j2 < strlen(aux4); j2++)
+                {
+                    aux3[j4] = aux4[j2];
+                    j4++;
+                }
+                aux3[j4] = '\0';
+
+                strcpy(aux2, aux3);
+
+                double maxi = -999999999;
+
+                p = strtok(aux2, ",");
+                while (p != NULL)
+                {
+                    if (isNumber(p) == true)
+                    {
+                        double number = atoi(p);
+
+                        if (maxi < number)
+                        {
+                            maxi = number;
+                        }
+                    }
+                    else
+                    {
+                        ok4++;
+                    }
+                    p = strtok(NULL, ",");
+                }
+
+                int intpart = (int)maxi;
+                double decpart = maxi - intpart;
+
+                if (decpart != 0)
+                {
+                    string varAsString = to_string(maxi);
+
+                    char *aux5 = new char[varAsString.length() + 1];
+                    strcpy(aux5, varAsString.c_str());
+
+                    replaceSubstring(aux2, aux2, aux5);
+                }
+                else
+                {
+                    intpart = (int)maxi;
+                    int numberDigits = countDigits(intpart);
+                    char *aux5 = nullptr;
+
+                    if (maxi < 0)
+                    {
+                        aux5 = new char[numberDigits + 2];
+                        snprintf(aux5, numberDigits + 2, "%d", intpart);
+                    }
+                    else
+                    {
+                        aux5 = new char[numberDigits + 1];
+                        snprintf(aux5, numberDigits + 1, "%d", intpart);
+                    }
+                    replaceSubstring(aux2, aux2, aux5);
+                }
+
+                cout << aux2 << endl;
+
+                replaceSubstring(copyInputString2, aux6, aux2);
+
+                occurrences--;
+            }
+            if (copyInputString2[indexStart - 1] == 'n' && copyInputString2[indexStart - 2] == 'i' && copyInputString2[indexStart - 3] == 'm')
+            {
+                i = i - 3;
+                strcpy(aux2, "");
+                j3 = 0;
+                // cout << indexStart << " " << indexEnd << endl;
+                for (j2 = indexStart - 3; j2 <= indexEnd; j2++)
+                {
+                    aux2[j3] = copyInputString2[j2];
+                    j3++;
+                }
+                aux2[j3] = '\0';
+
+                char *aux6 = new char[strlen(aux2) + 1];
+                strcpy(aux6, aux2);
+
+                strcpy(aux3, "");
+                j4 = 0;
+                for (j2 = indexStart; j2 <= indexEnd; j2++)
+                {
+                    aux3[j4] = copyInputString2[j2];
+                    j4++;
+                }
+                aux3[j4] = '\0';
+
+                char *modifiedString = stergePrimaUltimaPozitie(aux3);
+
+                // strcat(modifiedString, ",");
+
+                //cout << modifiedString << endl;
+
+                strcpy(aux4, "");
+
+                char *p = strtok(modifiedString, ",");
+                while (p != NULL)
+                {
+                    if (isNumber(p) == false)
+                    {
+                        p = processString(p, vector_chey7, vector_words5, size_of_vector_chey5);
+                        strcat(aux4, p);
+                        strcat(aux4, ",");
+                    }
+                    else
+                    {
+                        strcat(aux4, p);
+                        strcat(aux4, ",");
+                    }
+                    p = strtok(NULL, ",");
+                }
+
+                if (aux4[0] != '\0')
+                {
+                    aux4[strlen(aux4) - 1] = '\0';
+                }
+
+                // cout << "am intrat= " << aux4 << endl;
+
+                char *modifiedString2 = addCharToFront(aux4, '(');
+
+                strcpy(aux4, modifiedString2);
+
+                char *modifiedString3 = addCharToEnd(aux4, ')');
+
+                strcpy(aux4, modifiedString3);
+
+                replaceSubstring(aux2, aux3, aux4);
+
+                //for (j2 = 0; j2 <= strlen(aux2); j2++)
+                //{
+                //    cout << aux2[j2] << " ";
+                //}
+                //cout << endl;
+
+                strcpy(aux4, aux2);
+
+                char *modifiedString4 = stergePrimaUltimaPozitie(aux4);
+
+                strcpy(aux4, modifiedString4);
+
+                strcpy(aux3, "");
+                j4 = 0;
+                for (j2 = 3; j2 < strlen(aux4); j2++)
+                {
+                    aux3[j4] = aux4[j2];
+                    j4++;
+                }
+                aux3[j4] = '\0';
+
+                strcpy(aux2, aux3);
+
+                double mini = 999999999;
+
+                p = strtok(aux2, ",");
+                while (p != NULL)
+                {
+                    if (isNumber(p) == true)
+                    {
+                        double number = atoi(p);
+
+                        if (mini > number)
+                        {
+                            mini = number;
+                        }
+                    }
+                    else
+                    {
+                        ok4++;
+                    }
+                    p = strtok(NULL, ",");
+                }
+
+                int intpart = (int)mini;
+                double decpart = mini - intpart;
+
+                if (decpart != 0)
+                {
+                    string varAsString = to_string(mini);
+
+                    char *aux5 = new char[varAsString.length() + 1];
+                    strcpy(aux5, varAsString.c_str());
+
+                    replaceSubstring(aux2, aux2, aux5);
+                }
+                else
+                {
+                    intpart = (int)mini;
+                    int numberDigits = countDigits(intpart);
+                    char *aux5 = nullptr;
+
+                    if (mini < 0)
+                    {
+                        aux5 = new char[numberDigits + 2];
+                        snprintf(aux5, numberDigits + 2, "%d", intpart);
+                    }
+                    else
+                    {
+                        aux5 = new char[numberDigits + 1];
+                        snprintf(aux5, numberDigits + 1, "%d", intpart);
+                    }
+                    replaceSubstring(aux2, aux2, aux5);
+                }
+
+                cout << aux2 << endl;
+
+                replaceSubstring(copyInputString2, aux6, aux2);
+
+                occurrences--;
+            }
+            if (copyInputString2[indexStart - 1] == 'e' && copyInputString2[indexStart - 2] == 'z' && copyInputString2[indexStart - 3] == 'i' && copyInputString2[indexStart - 4] == 's')
+            {
+                i = i - 4;
+                strcpy(aux2, "");
+                j3 = 0;
+                // cout << indexStart << " " << indexEnd << endl;
+                for (j2 = indexStart - 4; j2 <= indexEnd; j2++)
+                {
+                    aux2[j3] = copyInputString2[j2];
+                    j3++;
+                }
+                aux2[j3] = '\0';
+
+                char *aux6 = new char[strlen(aux2) + 1];
+                strcpy(aux6, aux2);
+
+                strcpy(aux3, "");
+                j4 = 0;
+                for (j2 = indexStart + 1; j2 < indexEnd; j2++)
+                {
+                    aux3[j4] = copyInputString2[j2];
+                    j4++;
+                }
+                aux3[j4] = '\0';
+
+                char *result = processString(aux3, vector_chey7, vector_words5, size_of_vector_chey5);
+                int sizeOf = 0;
+
+                //cout << "am intrat= " << result << endl;
+                flag4 = 0;
+
+                if (result[0] == '{')
+                {
+                    sizeOf = 1;
+                    flag4++;
+                }
+                if (result[0] == '[')
+                {
+                    int commas = number_of_commas(result);
+                    sizeOf = commas + 1;
+                    flag4++;
+                }
+                if (result[0] == '"')
+                {
+                    char *modifiedString = stergePrimaUltimaPozitie(result);
+                    sizeOf = strlen(modifiedString);
+                    flag4++;
+                }
+
+                //if (flag4 == 0)
+                //{
+                //    cout << "err size" << endl;
+                //}
+
+                string intStr = to_string(sizeOf);
+
+                j4 = 0;
+                strcpy(aux4, "");
+                for (j2 = 0; j2 < intStr.length(); j2++)
+                {
+                    aux4[j2] = intStr[j2];
+                    j4++;
+                }
+
+                replaceSubstring(copyInputString2, aux6, aux4);
+
+                cout << copyInputString2 << endl;
+
+                occurrences--;
+            }
+        }
     }
-    if(ok==0){
-        cout << "second argument is invalid: " << endl;
-    }
-    
-    // in max(max(a.b[0]))
-    // mai intai facem toate inlocuirile dupa cand ajungem mereu la max depth facem calculul efectiv
 
     return 0;
 }
-
-/*
-void eliminare(char *s, int poz)
-{
-    char t[256];
-    strcpy(t, s + poz + 1);
-    strcpy(s + poz, t);
-}
-*/
