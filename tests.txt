@@ -1,0 +1,149 @@
+Name: key with null value
+Input File: {"x": null, "y": null}
+Test 1: ./json_eval input.json "x"
+Output: null
+
+Test 2: ./json_eval input.json "y"
+Output: null
+
+Name: key with bool value true
+Input File: {"x": true, "y": true}
+Test 1: ./json_eval input.json "x"
+Output: true
+
+Test 2: ./json_eval input.json "y"
+Output: true
+
+Name: key with bool value true and key with bool value false
+Input File: {"x": true, "y": false}
+Test 1: ./json_eval input.json "x"
+Output: true
+
+Test 2: ./json_eval input.json "y"
+Output: false
+
+Name: 2 different keys but inside have 1 common key name to access value
+Input File: {"x" : {"b": "123"}, "y": {"b": "123"}}
+Test 1: ./json_eval input.json "x"
+Output: {"b":"123"}
+
+Test 2: ./json_eval input.json "y"
+Output: {"b":"123"}
+
+Test 3: ./json_eval input.json "x.b"
+Output: "123"
+
+Test 4: ./json_eval input.json "y.b"
+Output: "123"
+
+Name: value key using inside string escaped \" and characters [ ]
+Input File: {"x" : {"b": "1[2]7\"3"}, "y": {"b": "123"}}
+Test 1: ./json_eval input.json "x"
+Output: {"b":"1[2]7\"3"}
+
+Test 2: ./json_eval input.json "x.b"
+Output: x.b "1[2]7\"3"
+
+Test 3: ./json_eval input.json "y"
+Output: {"b":"123"}
+
+Test 4: ./json_eval input.json "y.b"
+Output: "123"
+
+Name: value key with negative integer
+Input File: {"x" : -789 , "a": { "b": [1, 2, { "c": "test" }, [11, 12]]}, "y" : -999}
+Test 1: ./json_eval input.json "x"
+Output: -789
+
+Test 2: ./json_eval input.json "a"
+Output: {"b":[1,2,{"c":"test"},[11,12]]}
+
+Test 3: ./json_eval input.json "a.b"
+Output: [1,2,{"c":"test"},[11,12]]
+
+Test 4: ./json_eval input.json "a.b[0]"
+Output: 1
+
+Test 5: ./json_eval input.json "a.b[1]"
+Output: 2
+
+Test 6: ./json_eval input.json "a.b[2]"
+Output: {"c":"test"}
+
+Test 7: ./json_eval input.json "a.b[3]"
+Output: [11, 12]
+
+Test 8: ./json_eval input.json "a.b[2].c"
+Output: "test"
+
+Test 9: ./json_eval input.json "y"
+Output: -999
+
+Name: value key with double values
+Input File: {"x" : -789.235 , "a": { "b": [1, 2, 3, 4, { "c": "test" }, [11, 12]]}, "y" : 999.999}
+Test 1: ./json_eval input.json "x"
+Output: -789.235
+
+Test 2: ./json_eval input.json "a"
+Output: {"b":[1,2,3,4,{"c":"test"},[11,12]]}
+
+Test 3: ./json_eval input.json "a.b"
+Output: [1,2,3,4,{"c":"test"},[11,12]]
+
+Test 4: ./json_eval input.json "a.b[0]"
+Output: 1
+
+Test 5: ./json_eval input.json "a.b[1]"
+Output: 2
+
+Test 6: ./json_eval input.json "a.b[2]"
+Output: 3
+
+Test 7: ./json_eval input.json "a.b[3]"
+Output: 4
+
+Test 8: ./json_eval input.json "a.b[4]"
+Output: {"c":"test"}
+
+Test 9: ./json_eval input.json "a.b[5]"
+Output: [11,12]
+
+Test 10: ./json_eval input.json "a.b[4].c"
+Output: "test"
+
+Test 11: ./json_eval input.json "y"
+Output: 999.999
+
+Name: invalid JSON structure
+Input File: {"x" : 789 , "a": [ "b": [ 1, 2, { "c": "te[s]"\t" }, [11, 12] ]], "y" : 999}
+Test 1: ./json_eval input.json "x"
+Output: JSON-ul nu este valid.
+
+Test 2: ./json_eval input.json "x.a"
+Output: JSON-ul nu este valid.
+
+Test 3: ./json_eval input.json "x.a[0].b"
+Output: JSON-ul nu este valid.
+
+Test 4: ./json_eval input.json "x.a[0].b[0]"
+Output: JSON-ul nu este valid.
+
+Test 5: ./json_eval input.json "x.a[0].b[1]"
+Output: JSON-ul nu este valid.
+
+Test 6: ./json_eval input.json "x.a[0].b[2]"
+Output: JSON-ul nu este valid.
+
+Test 7: ./json_eval input.json "x.a[0].b[3]"
+Output: JSON-ul nu este valid.
+
+Test 8: ./json_eval input.json "y"
+Output: JSON-ul nu este valid.
+
+Name: array type value with only 1 value
+Input File: {"x" : [789], "y" : [999]}
+Test 1: ./json_eval input.json "x"
+Output: [789]
+
+Test 2: ./json_eval input.json "y"
+Output: [999]
