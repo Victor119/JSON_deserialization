@@ -841,6 +841,52 @@ char *stergePrimaUltimaPozitie(const char *sir)
     return result;
 }
 
+char *processInputString(char *inputString)
+{
+    int maxDepth = calculateMaxDepth2(inputString);
+
+    int i = 0, flag = 0, k = 0, j = 0, ok = 0, counter = 0;
+    char *aux = new char[256];
+    strcpy(aux, "");
+
+    for (i = 0; i < strlen(inputString) && ok == 0; i++)
+    {
+        if (inputString[i] == '[')
+        {
+            k++;
+        }
+        if (flag == 1)
+        {
+            if (inputString[i] == ']')
+            {
+                counter++;
+            }
+            if (counter < 2)
+            {
+                aux[j] = inputString[i];
+                j++;
+            }
+            if (counter == 2)
+            {
+                ok++;
+            }
+        }
+        if (k == maxDepth && flag == 0)
+        {
+            i--;
+            while (inputString[i] != '[')
+            {
+                i--;
+            }
+            flag++;
+        }
+    }
+
+    aux[j] = '\0';
+
+    return aux;
+}
+
 /*
 int v1[1024], v2[1024], v3[1024], v4[1024];
 int copyV1[1024], copyV2[1024];
@@ -2335,6 +2381,8 @@ int main(int argc, char *argv[])
                     strncpy(modified_chey6, vector_chey6[j4] + 1, strlen(vector_chey6[j4]) - 3);
                     modified_chey6[strlen(vector_chey6[j4]) - 3] = '\0';
 
+                    // cout << "am intrat= " << vector_chey4[j2] << " " << modified_chey6 << endl;
+
                     if (strcmp(vector_chey4[j2], modified_chey6) == 0)
                     {
                         flag4++;
@@ -2348,6 +2396,10 @@ int main(int argc, char *argv[])
                 if (strcmp(vector_chey4[j2], vector_chey4[j2 - 1]) != 0)
                 {
                     counter++;
+                    if (strcmp(vector_chey4[j2], vector_chey4[j2 + 1]) == 0)
+                    {
+                        counter--;
+                    }
                 }
             }
         }
@@ -2376,6 +2428,12 @@ int main(int argc, char *argv[])
     a.b[2].c   "test"
     y          -999
     */
+
+    // cout << endl;
+    // for (i = 0; i < size_of_vector_chey5; i++)
+    //{
+    //     cout << vector_chey7[i] << " " << vector_words5[i] << endl;
+    // }
 
     i = 0, i2 = 0, j = 0, j2 = 0, j3 = 0, j4 = 0, l = 0, k = 0;
     flag = 0, flag2 = 0, flag3 = 0, flag4 = 0, flag5 = 0;
@@ -2441,19 +2499,17 @@ int main(int argc, char *argv[])
 
         strcpy(aux, "");
 
-        // cout << vector_chey7[i] << endl;
+        // cout << "am intrat= "<< vector_chey7[i] << endl;
 
         char *modifiedString = eliminaDupaGhilimele(vector_chey7[i]);
 
+        // cout << "am intrat= "<< vector_chey7[i] << endl;
+
         char *modifiedString2 = stergePrimaUltimaPozitie(modifiedString);
 
-        strcpy(vector_chey7[i], modifiedString2);
-    }
+        // cout << "am intrat= "<< modifiedString2 << endl;
 
-    cout << endl;
-    for (i = 0; i < size_of_vector_chey5; i++)
-    {
-        cout << vector_chey7[i] << " " << vector_words5[i] << endl;
+        strcpy(vector_chey7[i], modifiedString2);
     }
 
     cout << "input string= " << inputString2 << endl;
@@ -2467,52 +2523,37 @@ int main(int argc, char *argv[])
 
     int ok = 0;
 
-    // while (maxDepth > 1)
-    //{
+    strcpy(copyInputString2, inputString2);
 
-/*
-    flag = 0, k = 0, j = 0, ok = 0;
-    strcpy(aux, "");
-    for (i = 0; i < strlen(copyInputString2) && ok == 0; i++)
-    {
-        if (copyInputString2[i] == '[')
+    cout << endl;
+    while(maxDepth>1){
+        char *modifiedString3 = processInputString(copyInputString2);
+
+        for (i = 0; i < size_of_vector_chey5; i++)
         {
-            k++;
-        }
-        if (flag == 1)
-        {
-            if (copyInputString2[i] == ']')
-            {
-                counter++;
-            }
-            if (counter < 2)
-            {
-                aux = addCharToEnd(aux, copyInputString2[i]);
-                j++;
-            }
-            if (counter == 2)
-            {
-                ok++;
+            if(strcmp(vector_chey7[i], modifiedString3) == 0){
+                cout << vector_chey7[i] << " " << vector_words5[i] << endl;
+                replaceSubstring(copyInputString2, modifiedString3, vector_words5[i]);
             }
         }
-        if (k == maxDepth && flag == 0)
-        {
-            i--;
-            while (copyInputString2[i] != '[')
-            {
-                i--;
-            }
-            flag++;
+        maxDepth--;
+    }
+
+    for (i = 0; i < size_of_vector_chey5 && ok==0; i++){
+        if(strcmp(vector_chey7[i], copyInputString2)==0){
+            replaceSubstring(copyInputString2, vector_chey7[i], vector_words5[i]);
+            ok++;
         }
     }
 
-    cout << "am intrat = " << aux << endl;
-    for (i = 0; i < size_of_vector_chey5; i++)
-    {
-        i++;
+    if(ok==1){
+        cout << "second argument is valid: " << endl;
+        cout << copyInputString2 << endl;
     }
-    //}
-*/
+    if(ok==0){
+        cout << "second argument is invalid: " << endl;
+    }
+    
     // in max(max(a.b[0]))
     // mai intai facem toate inlocuirile dupa cand ajungem mereu la max depth facem calculul efectiv
 
